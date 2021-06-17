@@ -1,7 +1,7 @@
 # steelseries-oled
 Python utility for displaying GIFs on SteelSeries keyboards
 
-Currently made only for the SteelSeries Apex 7 with 128x40 size OLED
+Currently made only for the SteelSeries Apex 5 and 7 with 128x40 size OLED
 Try to change the VID/PID yourself to see if it works with your keyboard.
 
 # Installation
@@ -12,7 +12,7 @@ Windows requires the hidapi.dll file which can be downloaded from the zip file h
 
 # Usage
 ```
-python oled.py image.gif
+python oled.py example.gif
 or
 python sysstats.py
 or
