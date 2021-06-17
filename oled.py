@@ -3,6 +3,7 @@
 from PIL import Image, ImageSequence
 from easyhid import Enumeration
 from time import sleep
+from device import getDevice
 import signal
 import sys
 
@@ -24,19 +25,7 @@ if(len(sys.argv) < 2):
 # Set up ctrl-c handler
 signal.signal(signal.SIGINT, signal_handler)
 
-# Stores an enumeration of all the connected USB HID devices
-en = Enumeration()
-# Return a list of devices based on the search parameters / Hardcoded to Apex 5
-devices = en.find(manufacturer="SteelSeries",
-                  product="SteelSeries Apex 5")
-if not devices:
-    devices = en.find(vid=0x1038, pid=0x1618, interface=1)
-if not devices:
-    print("No devices found, exiting.")
-    sys.exit(0)
-
-# Use first device found with vid/pid
-dev = devices[1]
+dev = getDevice()
 
 print("Press Ctrl-C to exit.\n")
 dev.open()
