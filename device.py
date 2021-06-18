@@ -1,3 +1,6 @@
+from time import sleep
+from image import get_data_frame
+from PIL.Image import Image
 from easyhid import Enumeration
 import sys
 
@@ -16,3 +19,15 @@ def getDevice():
 
   # Use first device found with vid/pid
   return devices[1]
+
+def send_feature_report(dev, data):
+    # Set up feature report package
+    data = bytearray([0x61]) + data + bytearray([0x00])
+
+    dev.send_feature_report(data)
+
+def display_frame(dev, frame: Image):
+	data = get_data_frame(frame)
+
+	send_feature_report(dev, data)
+	sleep(frame.info['duration'] / 1000)

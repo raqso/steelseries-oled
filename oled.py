@@ -1,51 +1,24 @@
 #!/usr/bin/env python3
 
-from PIL import Image, ImageSequence
-from easyhid import Enumeration
-from time import sleep
-from device import getDevice
-import signal
+from cli import setup_close_handler
+from image import  get_image
+from PIL import ImageSequence
+from device import display_frame, getDevice
 import sys
 
-def signal_handler(sig, frame):
-    try:
-    	# Blank screen on shutdown
-        dev.send_feature_report(bytearray([0x61] + [0x00] * 641))
-        dev.close()
-        print("\n")
-        sys.exit(0)
-    except:
-        sys.exit(0)
+def validate_arguments():
+    if(len(sys.argv) < 2):
+     print("Usage: oled.py image.gif\n")
+     sys.exit(0)
 
-# Check for arguments
-if(len(sys.argv) < 2):
-	print("Usage: oled.py image.gif\n")
-	sys.exit(0)
-
-# Set up ctrl-c handler
-signal.signal(signal.SIGINT, signal_handler)
-
+validate_arguments()
 dev = getDevice()
-
-print("Press Ctrl-C to exit.\n")
+setup_close_handler()
 dev.open()
-
-im = Image.open(sys.argv[1])
+image = get_image(sys.argv[1])
 
 while(1):
-	for frame in ImageSequence.Iterator(im):
-
-	    # Image size based on Apex 5 and 7
-	    frame = frame.resize((128, 40))
-
-	    # Convert to monochrome
-	    frame = frame.convert('1')
-	    data = frame.tobytes()
-
-	    # Set up feature report package
-	    data = bytearray([0x61]) + data + bytearray([0x00])
-
-	    dev.send_feature_report(data)
-	    sleep(frame.info['duration'] / 1000)
+	for frame in ImageSequence.Iterator(image):
+	    display_frame(dev, frame)
 
 dev.close()

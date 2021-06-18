@@ -1,38 +1,26 @@
 #!/usr/bin/env python3
 
+from typing import Final
+from cli import setup_close_handler
 from PIL import Image, ImageFont, ImageDraw
-from easyhid import Enumeration
 from time import sleep
-from device import getDevice
-import signal
-import sys
+from device import getDevice, send_feature_report
 import psutil
 
-def signal_handler(sig, frame):
-    try:
-        # Blank screen on shutdown
-        dev.send_feature_report(bytearray([0x61] + [0x00] * 641))
-        dev.close()
-        print("\n")
-        sys.exit(0)
-    except:
-        sys.exit(0)
-
-# Set up ctrl-c handler
-signal.signal(signal.SIGINT, signal_handler)
+# use a truetype font
+FONT_NAME: Final = "OpenSans-Regular.ttf"
+FONT_SIZE: Final = 12
 
 dev = getDevice()
-
-print("Press Ctrl-C to exit.\n")
+setup_close_handler()
 dev.open()
 
 im = Image.new('1', (128,40))
 draw = ImageDraw.Draw(im)
 
 while(1):
-    # use a truetype font
     draw.rectangle([(0,0),(128,40)], fill=0)
-    font = ImageFont.truetype("OpenSans-Regular.ttf", 12)
+    font = ImageFont.truetype(FONT_NAME, FONT_SIZE)
 
     cpu_freq, cpu_min, cpu_max = psutil.cpu_freq()
 
@@ -41,10 +29,7 @@ while(1):
     draw.text((0, 24), "Memory: {:2.0f}% Used".format(psutil.virtual_memory().percent), font=font, fill=255)
 
     data = im.tobytes()
-    # Set up feature report package
-    data = bytearray([0x61]) + data + bytearray([0x00])
-
-    dev.send_feature_report(data)
+    send_feature_report(dev, data)
 
     sleep(0.1)
 
